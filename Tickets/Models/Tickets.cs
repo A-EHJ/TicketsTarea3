@@ -9,7 +9,7 @@ namespace Tickets.Models
         public int TicketId { get; set; }
 
         [Required(ErrorMessage = "Es necesario completar el campo Fecha")]
-        public DateTime Fecha { get; set; } // Fecha del ticket
+        public DateTime Fecha { get; set; } = DateTime.Now; // Fecha del ticket
 
         [Required(ErrorMessage = "Es necesario completar el campo ClienteId")]
         [Range(1, int.MaxValue, ErrorMessage = "El ClienteId debe ser mayor que cero")]
