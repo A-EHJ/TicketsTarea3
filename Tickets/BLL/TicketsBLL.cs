@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
- 
+
 using Tickets.DAL;
 namespace Tickets.BLL
 {
@@ -13,15 +13,17 @@ namespace Tickets.BLL
             Contexto = contexto;
         }
 
-         public bool Existe(int id)
+        public bool Existe(int id)
         {
             return Contexto.Tickets.Any(o => o.TicketId == id);
         }
+
         private bool Insertar(Models.Tickets Tickets)
         {
             Contexto.Tickets.Add(Tickets);
             return Contexto.SaveChanges() > 0;
         }
+
         private bool Modificar(Models.Tickets cliente)
         {
             var PrioridadADesechar = Contexto.Tickets.Find(cliente.TicketId);
@@ -60,7 +62,10 @@ namespace Tickets.BLL
 
         }
 
-  
+        public Models.Tickets? Buscar(int id)
+        {
+            return Contexto.Tickets.Where(o => o.ClienteId == id).AsNoTracking().SingleOrDefault(); ;
+        }
 
         public List<Models.Tickets> GetList(Expression<Func<Models.Tickets, bool>> criterio)
         {
