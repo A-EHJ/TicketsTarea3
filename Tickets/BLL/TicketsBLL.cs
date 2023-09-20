@@ -24,13 +24,13 @@ namespace Tickets.BLL
             return Contexto.SaveChanges() > 0;
         }
 
-        private bool Modificar(Models.Tickets cliente)
+        public bool Modificar(Models.Tickets tickets)
         {
-            var PrioridadADesechar = Contexto.Tickets.Find(cliente.TicketId);
-            if (cliente != null)
+            var PrioridadADesechar = Contexto.Tickets.Find(tickets.TicketId);
+            if (tickets != null)
             {
                 Contexto.Entry(PrioridadADesechar).State = EntityState.Detached;
-                Contexto.Entry(cliente).State = EntityState.Modified;
+                Contexto.Entry(tickets).State = EntityState.Modified;
                 return Contexto.SaveChanges() > 0;
             }
             return false;
@@ -39,14 +39,16 @@ namespace Tickets.BLL
 
         public bool Guardar(Models.Tickets tickets)
         {
-            if (Contexto.Tickets.Any(p => p.TicketId != tickets.TicketId))
+            if (Existe(tickets.TicketId))
             {
-                return false;
-            }
-            if (!Existe(tickets.TicketId))
-                return Insertar(tickets);
-            else
+                // El ticket ya existe, intenta modificarlo
                 return Modificar(tickets);
+            }
+            else
+            {
+                // El ticket no existe, intenta insertarlo
+                return Insertar(tickets);
+            }
         }
 
         public bool Eliminar(Models.Tickets tickets)
@@ -64,7 +66,7 @@ namespace Tickets.BLL
 
         public Models.Tickets? Buscar(int id)
         {
-            return Contexto.Tickets.Where(o => o.ClienteId == id).AsNoTracking().SingleOrDefault(); ;
+            return Contexto.Tickets.Where(o => o.TicketId == id).AsNoTracking().SingleOrDefault(); ;
         }
 
         public List<Models.Tickets> GetList(Expression<Func<Models.Tickets, bool>> criterio)
