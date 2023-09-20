@@ -1,0 +1,162 @@
+﻿@page "/R_Tickets"
+@page "/R_Tickets/{TicketId:int}"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using Tickets.BLL
+@using Tickets.Models
+@using System.Globalization;
+
+<PageTitle>Registrar R_Tickets</PageTitle>
+
+@inject TicketsBLL ticketsBLL
+
+<EditForm Model="Tickets" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="centrar-texto">Registrar Tickets</h3>
+            </div>
+            <div class=card-body>
+
+                @*TicketId*@
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4 d-inline-block">
+                    <label>TicketId:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Tickets.TicketId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+               
+                @*Fecha*@
+                <div class="mb-3 col-3 d-inline-block">
+                    <label class="form-label" >Fecha:</label>
+                    <InputDate @bind-Value="Tickets.Fecha" class="form-control" placeholder="Fecha" />
+                    <ValidationMessage For="@(() => Tickets.Fecha)" />
+                </div>
+                <div class="row">
+                    @*ClienteId*@
+                    <div class="mb-3 col-3 d-inline-block">
+                        <label class="form-label">Cliente</label>
+                        <InputNumber @bind-Value="Tickets.ClienteId" class="form-control" placeholder="0" />
+                        <ValidationMessage For="@(() => Tickets.ClienteId)" />
+                    </div>
+                    @*SistemaId*@
+                        <div class="mb-3 col-3 d-inline-block">
+                        <label class="form-label">Sistema</label>
+                        <InputNumber @bind-Value="Tickets.SistemaId" class="form-control" placeholder="0" />
+                        <ValidationMessage For="@(() => Tickets.SistemaId)" />
+                    </div>
+                
+                    @*PrioridadId*@
+                    <div class="mb-3 col-3 d-inline-block">
+                        <label class="form-label">Prioridad</label>
+                        <InputNumber @bind-Value="Tickets.PrioridadId" class="form-control" placeholder="0" />
+                        <ValidationMessage For="@(() => Tickets.PrioridadId)" />
+                    </div>
+                </div>
+
+                @*SolicitadoPor*@
+                <div class="mb-3">
+                    <label class="form-label">Solicitado Por</label>
+                    <InputText @bind-Value="Tickets.SolicitadoPor" class="form-control" placeholder="Nombre del solicitante" />
+                    <ValidationMessage For="@(() => Tickets.SolicitadoPor)" />
+                </div>
+
+                @*Asunto*@
+                <div class="mb-3">
+                    <label class="form-label">Asunto</label>
+                    <InputText @bind-Value="Tickets.Asunto" class="form-control" placeholder="Asunto" />
+                    <ValidationMessage For="@(() => Tickets.Asunto)" />
+                </div>
+
+                @*Descripción*@
+                <div class="mb-3">
+                    <label class="form-label">Descripción</label>
+                    <InputText @bind-Value="Tickets.Descripcion" class="form-control" placeholder="Descripción" />
+                    <ValidationMessage For="@(() => Tickets.Asunto)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-center">
+            <div class="btn-group">
+                <button type="button" class="btn-nuevo" @onclick="Nuevo">Nuevo <i class="oi oi-file" /></button>
+                <button type="submit" class="btn-guardar">Guardar <i class="oi oi-document" /></button>
+                <button type="button" class="btn-eliminar" @onclick="Eliminar"> Eliminar <i class="oi oi-trash" /></button>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+<label class="centrar-texto">@Mensaje</label>
+
+@code {
+    [Parameter]
+    public int TicketId { get; set; }
+
+    public Tickets Tickets { get; set; } = new Tickets();
+    public string Mensaje { get; set; } = string.Empty;
+
+
+    protected override void OnInitialized()
+    {
+        if (TicketId > 0)
+        {
+            this.Tickets.TicketId = TicketId;
+            this.Buscar();
+        }
+    }
+
+    void Buscar()
+    {
+
+        var prioridadEncontrada = ticketsBLL.Buscar(Tickets.TicketId);
+        Mensaje = string.Empty;
+        if (prioridadEncontrada != null)
+        {
+            this.Tickets = prioridadEncontrada;
+
+        }
+        else
+        {
+            this.Tickets = new Tickets();
+
+            Mensaje = "No se encontro el cliente";
+        }
+    }
+
+    void Nuevo()
+    {
+
+        this.Tickets = new Tickets();
+        Mensaje = string.Empty;
+    }
+
+    void Guardar()
+    {
+        Mensaje = string.Empty;
+        if (Tickets.TicketId < 0)
+        {
+            Mensaje = "No pudo guardar el cliente";
+            return;
+        }
+        if (ticketsBLL.Guardar(this.Tickets))
+        {
+            Mensaje = "Se guardo correctamente el cliente";
+            this.Tickets = new Tickets();
+        }
+    }
+
+    void Eliminar()
+    {
+        Mensaje = string.Empty;
+        if (ticketsBLL.Eliminar(Tickets))
+            Mensaje = "Se ha eliminado correctamente el cliente";
+        else
+            Mensaje = "No se pudo eliminar el cliente";
+        this.Tickets = new Tickets();
+
+    }
+}
